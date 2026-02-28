@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:userbook/models/userM.dart';
 import 'package:userbook/widgets/user_list.dart';
 
+
 class UsersScreen extends StatefulWidget{
 
   const UsersScreen({super.key});
@@ -12,6 +13,7 @@ class UsersScreen extends StatefulWidget{
   @override
   State<UsersScreen> createState()=> _UsersScreenState();
 }
+
 
 class _UsersScreenState extends State<UsersScreen>{
 
@@ -25,10 +27,10 @@ class _UsersScreenState extends State<UsersScreen>{
     getUserData();
   }
 
+  //get data from api;
   Future<void> getUserData() async {
     const String USER_URL= "https://dummyjson.com/users";
     List<Map<String,dynamic>> userList = [];
-
     final res= await http.get(Uri.parse(USER_URL));
 
     if(res.statusCode == 200){
@@ -38,47 +40,26 @@ class _UsersScreenState extends State<UsersScreen>{
       debugPrint("$userList");
       usersModelList = userList.map((el)=>UsersModel.fromJson(el)).toList();
       helperUserModelList = usersModelList;
-      // filterUser(key: "country");
       setState(() {});
     }else{
       debugPrint("data not fetched terminate with status code ${res.statusCode}");
     }
-
     return;
   }
 
-  void filterUser({required String key}){
-
-    debugPrint("filter List : $key, $usersModelList");
-    if(key.isNotEmpty){
-
-      helperUserModelList.sort((a,b)=>filterUserHelper(a,b,key));
-    }
-    else{
+  //filter users base on blood group
+  void filterUser({String? key}){
+    if(key==null || key.toLowerCase()=="all"){
       helperUserModelList = usersModelList;
     }
-
-    debugPrint("filter List : $key, $usersModelList");
-  }
-
-  int filterUserHelper(UsersModel a, UsersModel b,String key){
-    late String v1;
-    late String v2;
-
-    switch(key){
-
-      case "bloodG":
-        v1=a.bloodG;
-        v2=b.bloodG;
-        break;
+    else{
+      helperUserModelList=usersModelList.where((user)=>user.bloodG.toLowerCase()==key.toLowerCase()).toList();
     }
-
-    return v1.compareTo(v2);
+    setState(() {});
   }
 
+  //search user
   void searchUser({required String key}){
-
-    debugPrint("search List : $key, $usersModelList");
     if(key.isNotEmpty){
       helperUserModelList = usersModelList
                       .where((user)=>user.name.toLowerCase().contains(key.toLowerCase()))
@@ -87,9 +68,7 @@ class _UsersScreenState extends State<UsersScreen>{
     else{
       helperUserModelList = usersModelList;
     }
-
-    debugPrint("search List : $key, $usersModelList");
-
+    setState(() {});
   }
 
   @override 
@@ -101,7 +80,76 @@ class _UsersScreenState extends State<UsersScreen>{
       body:SafeArea(
         child: Column(
           children: [
-            UsersList(userList: helperUserModelList),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+
+                  //search
+                  Expanded(
+                    flex: 3,
+                    child: TextField(
+                      onChanged: (value) {
+                        searchUser(key: value);
+                      },
+                      decoration: InputDecoration(
+                        hintText: "Search",
+                        prefixIcon: const Icon(Icons.search),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15), 
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 10),
+
+                  //filter
+                  Expanded(
+                    flex: 2,
+                    child: DropdownButtonFormField<String>(
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.filter_list),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                      ),
+                      items: const [
+                        DropdownMenuItem(value: "All", child: Text("All")),
+                        DropdownMenuItem(value: "A+", child: Text("A+")),
+                        DropdownMenuItem(value: "A-", child: Text("A-")),
+                        DropdownMenuItem(value: "B+", child: Text("B+")),
+                        DropdownMenuItem(value: "B-", child: Text("B-")),
+                        DropdownMenuItem(value: "O+", child: Text("O+")),
+                        DropdownMenuItem(value: "O-", child: Text("O-")),
+                        DropdownMenuItem(value: "AB+", child: Text("AB+")),
+                        DropdownMenuItem(value: "AB-", child: Text("AB-")),
+                      ],
+                      onChanged: (value) {
+                        filterUser(key: value);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            //userList
+            Expanded(child: UsersList(userList: helperUserModelList)),
           ],
         ),
       )
