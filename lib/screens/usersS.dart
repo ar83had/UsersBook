@@ -62,7 +62,7 @@ class _UsersScreenState extends State<UsersScreen>{
   void searchUser({required String key}){
     if(key.isNotEmpty){
       helperUserModelList = usersModelList
-                      .where((user)=>user.name.toLowerCase().contains(key.toLowerCase()))
+                      .where((user)=>user.name.toLowerCase().substring(0,key.length)==key.toLowerCase())
                       .toList();
     }
     else{
