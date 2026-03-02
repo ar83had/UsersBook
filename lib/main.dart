@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:userbook/screens/signup.dart';
 import 'package:userbook/screens/usersS.dart';
 
 void main() {
@@ -13,7 +14,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'User Book',
-      home: UsersScreen(),
+      home: SignUp(),
     );
   }
 }
