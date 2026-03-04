@@ -18,26 +18,25 @@ class API{
       },
     ); 
 
-    
-    if(res.statusCode!=200){
-      debugPrint(res.body);
-    }
+    debugPrint(res.body);
 
     return jsonDecode(res.body);
   }
 
-  static Future<void> signin({required String username, required String pws}) async{
+  static Future<dynamic> signin({required Map<String,String> body}) async{
 
-    final URL = Uri.parse("https://lockit-server.vercel.app/user/signin/authenticate");
+    final URL = Uri.parse("https://caperbit.com/workshop/public/api/v1/auth/login");
 
-    final res = await http.get(
+    final res = await http.post(
       URL,
+      body: jsonEncode(body),
       headers: {
-        "username":username,
-        "pws":pws,
+        "Content-Type":"application/json",
       }
     );
 
-    print(res.body);
+    debugPrint(res.body);
+
+    return jsonDecode(res.body);
   }
 }
