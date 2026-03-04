@@ -39,4 +39,30 @@ class API{
 
     return jsonDecode(res.body);
   }
+
+  static Future<dynamic> getUsersData({required String token}) async{
+
+    Uri URL = Uri.parse("https://caperbit.com/workshop/public/api/v1/profile");
+
+    final res = await http.get(
+      URL,
+      headers: {
+        "Authorization":token,
+        "Accept":"application/json",
+      }
+    );
+
+    debugPrint("${jsonDecode(res.body)}");
+  }
+
+  static Future<dynamic> getDummyData() async{
+
+    Uri URL = Uri.parse("https://dummyjson.com/users");
+
+    final res = await http.get(
+      URL
+    );
+
+    return res;
+  }
 }
