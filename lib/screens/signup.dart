@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:userbook/api/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:userbook/screens/signin.dart';
 import 'package:userbook/screens/usersS.dart';
+import 'package:userbook/widgets/password_text_field.dart';
+import 'package:userbook/widgets/text_form_field.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -67,7 +70,7 @@ class _SignUpState extends State<SignUp> {
 
                 const SizedBox(height: 20),
 
-                buildTextField(
+                BuildTextField(
                   controller: _nameController,
                   label: "Name",
                   validator: (value) =>
@@ -75,7 +78,7 @@ class _SignUpState extends State<SignUp> {
                   errorText: serverError["name"]!=null? serverError["name"][0]:null,
                 ),
 
-                buildTextField(
+                BuildTextField(
                   controller: _emailController,
                   label: "Email",
                   keyboardType: TextInputType.emailAddress,
@@ -88,7 +91,7 @@ class _SignUpState extends State<SignUp> {
                   errorText: serverError["email"]!=null?serverError["email"][0]:null,
                 ),
 
-                buildTextField(
+                BuildTextField(
                   controller: _mobileController,
                   label: "Mobile",
                   keyboardType: TextInputType.phone,
@@ -100,7 +103,7 @@ class _SignUpState extends State<SignUp> {
                   errorText: serverError["mobile"]!=null?serverError["mobile"][0]:null,
                 ),
 
-                buildPasswordField(
+                BuildPasswordField(
                   controller: _passwordController,
                   label: "Password",
                   isHidden: _isHidden,
@@ -116,7 +119,7 @@ class _SignUpState extends State<SignUp> {
                   errorText: serverError["password"]!=null?serverError["password"][0]:null,
                 ),
 
-                buildPasswordField(
+                BuildPasswordField(
                   controller: _confirmPasswordController,
                   label: "Confirm Password",
                   isHidden: _isConfirmHidden,
@@ -132,7 +135,7 @@ class _SignUpState extends State<SignUp> {
                   errorText: serverError["password_confirmation"]!=null?serverError["password_confirmation"][0]:null,
                 ),
 
-                buildTextField(
+                BuildTextField(
                   controller: _companyController,
                   label: "Company Name",
                   validator: (value) =>
@@ -140,28 +143,28 @@ class _SignUpState extends State<SignUp> {
                   errorText: serverError["company_name"]!=null?serverError["company_name"][0]:null,
                 ),
 
-                buildTextField(
+                BuildTextField(
                   controller: _addressController,
                   label: "Address",
                   validator: (value) => (value!.isEmpty)?"Address is required":null,
                   errorText: serverError["address"]!=null?serverError["address"][0]:null,
                 ),
 
-                buildTextField(
+                BuildTextField(
                   controller: _cityController,
                   label: "City",
                   validator: (value)=>value!.isEmpty?"City is required":null,
                   errorText: serverError["city"]!=null?serverError["city"][0]:null,
                 ),
 
-                buildTextField(
+                BuildTextField(
                   controller: _stateController,
                   label: "State",
                   validator: (value)=>value!.isEmpty?"Sate is required":null,
                   errorText: serverError["state"]!=null?serverError["state"][0]:null,
                 ),
 
-                buildTextField(
+                BuildTextField(
                   controller: _postalCodeController,
                   label: "Postal Code",
                   keyboardType: TextInputType.number,
@@ -217,6 +220,28 @@ class _SignUpState extends State<SignUp> {
                     ),
                   ),
                 ),
+
+                SizedBox(height: 20,),
+
+                SizedBox(
+                  height: 50,
+                  width: double.infinity,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text("Already have an account? "),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (_) => SigninScreen()),
+                          );
+                        },
+                        child: const Text("Sign In"),
+                      )
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -226,55 +251,55 @@ class _SignUpState extends State<SignUp> {
   }
 
   /// 🔹 Reusable TextFormField with Dynamic Validator
-  Widget buildTextField({
-    required TextEditingController controller,
-    required String label,
-    TextInputType keyboardType = TextInputType.text,
-    String? Function(String?)? validator,
-    String? errorText
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 15),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: keyboardType,
-        validator: validator,
-        decoration: InputDecoration(
-          labelText: label,
-          border: const OutlineInputBorder(),
-          errorText: errorText
-        ),
-      ),
-    );
-  }
+  // Widget BuildTextField({
+  //   required TextEditingController controller,
+  //   required String label,
+  //   TextInputType keyboardType = TextInputType.text,
+  //   String? Function(String?)? validator,
+  //   String? errorText
+  // }) {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(bottom: 15),
+  //     child: TextFormField(
+  //       controller: controller,
+  //       keyboardType: keyboardType,
+  //       validator: validator,
+  //       decoration: InputDecoration(
+  //         labelText: label,
+  //         border: const OutlineInputBorder(),
+  //         errorText: errorText
+  //       ),
+  //     ),
+  //   );
+  // }
 
   /// 🔹 Reusable Password Field with Dynamic Validator
-  Widget buildPasswordField({
-    required TextEditingController controller,
-    required String label,
-    required bool isHidden,
-    required VoidCallback onTap,
-    String? Function(String?)? validator,
-    String? errorText
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 15),
-      child: TextFormField(
-        controller: controller,
-        obscureText: isHidden,
-        validator: validator,
-        decoration: InputDecoration(
-          labelText: label,
-          border: const OutlineInputBorder(),
-          errorText: errorText,
-          suffixIcon: IconButton(
-            icon: Icon(
-              isHidden ? Icons.visibility : Icons.visibility_off,
-            ),
-            onPressed: onTap,
-          ),
-        ),
-      ),
-    );
-  }
+//   Widget buildPasswordField({
+//     required TextEditingController controller,
+//     required String label,
+//     required bool isHidden,
+//     required VoidCallback onTap,
+//     String? Function(String?)? validator,
+//     String? errorText
+//   }) {
+//     return Padding(
+//       padding: const EdgeInsets.only(bottom: 15),
+//       child: TextFormField(
+//         controller: controller,
+//         obscureText: isHidden,
+//         validator: validator,
+//         decoration: InputDecoration(
+//           labelText: label,
+//           border: const OutlineInputBorder(),
+//           errorText: errorText,
+//           suffixIcon: IconButton(
+//             icon: Icon(
+//               isHidden ? Icons.visibility : Icons.visibility_off,
+//             ),
+//             onPressed: onTap,
+//           ),
+//         ),
+//       ),
+//     );
+//   }
 }
