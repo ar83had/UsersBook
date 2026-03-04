@@ -1,16 +1,14 @@
-import 'dart:io';
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 
 class API{
 
-  static Future<void> signup({required Map<String,String> data}) async{
+  static Future<dynamic> signup({required Map<String,String> body}) async{
 
-    final URL = Uri.parse("https://lockit-server.vercel.app/user/signup/store");
-    Map<String, Map<String,String>> body = {"form":data};
+    final URL = Uri.parse("https://caperbit.com/workshop/public/api/v1/auth/register");
 
     final res = await http.post(
       URL,
@@ -18,10 +16,14 @@ class API{
       headers: {
       "Content-Type": "application/json",
       },
-    );
+    ); 
 
-    print(res.body);
+    
+    if(res.statusCode!=200){
+      debugPrint(res.body);
+    }
 
+    return jsonDecode(res.body);
   }
 
   static Future<void> signin({required String username, required String pws}) async{

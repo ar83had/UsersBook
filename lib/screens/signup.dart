@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:userbook/api/api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:userbook/screens/usersS.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -10,121 +12,266 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
 
-  final _usernameController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
+  final _mobileController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  final _companyController = TextEditingController();
+  final _addressController = TextEditingController();
+  final _cityController = TextEditingController();
+  final _stateController = TextEditingController();
+  final _postalCodeController = TextEditingController();
 
   bool _isHidden = true;
+  bool _isConfirmHidden = true;
 
-  dynamic? res;
+  Map<String,dynamic> serverError={};
+  late dynamic res;
+  late SharedPreferences prefs;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  // Future<void> getSharedPreferences() async{
+  //   prefs = await SharedPreferences.getInstance();
+  // }
+
+  void showMsg(String msg){
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg))
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    print("APIresponse is : $res");
-
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.blue,
-      ),
+      appBar: AppBar(backgroundColor: Colors.blue),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(20),
-          child: Column(
-            children: [
-              
-              Image.asset(
-                "assets/image/formLogo.png",
-                width: 300,
-                height: 300,
-              ),
+          padding: const EdgeInsets.all(20),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
 
-              /// Username
-              TextField(
-                controller: _usernameController,
-                decoration: InputDecoration(
-                  labelText: "Username",
-                  border: OutlineInputBorder(),
+                Image.asset(
+                  "assets/image/formLogo.png",
+                  width: 250,
+                  height: 250,
                 ),
-              ),
-        
-              const SizedBox(height: 15),
-        
-              /// Email
-              TextField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  labelText: "Email",
-                  border: OutlineInputBorder(),
+
+                const SizedBox(height: 20),
+
+                buildTextField(
+                  controller: _nameController,
+                  label: "Name",
+                  validator: (value) =>
+                      value!.isEmpty ? "Name is required" : null,
+                  errorText: serverError["name"]!=null? serverError["name"][0]:null,
                 ),
-              ),
-        
-              const SizedBox(height: 15),
-        
-              /// Password
-              TextField(
-                controller: _passwordController,
-                obscureText: _isHidden,
-                decoration: InputDecoration(
-                  labelText: "Password",
-                  border: OutlineInputBorder(),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _isHidden
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isHidden = !_isHidden;
-                      });
-                    },
-                  ),
-                ),
-              ),
-        
-              const SizedBox(height: 25),
-        
-              /// Signup Button
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () async {
-        
-                    // Map<String, String> form = {
-                    //   "username": _usernameController.text,
-                    //   "email": _emailController.text,
-                    //   "pws": _passwordController.text,
-                    // };
-        
-                    // await API.signup(data:form);   // make sure your API method accepts parameter
+
+                buildTextField(
+                  controller: _emailController,
+                  label: "Email",
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (value!.isEmpty) return "Email is required";
+                    if (!value.contains("@")) return "Enter valid email";
+                    return null;
+                  
                   },
-                  child: const Text(
-                    "Sign Up",
-                    style: TextStyle(fontSize: 16),
+                  errorText: serverError["email"]!=null?serverError["email"][0]:null,
+                ),
+
+                buildTextField(
+                  controller: _mobileController,
+                  label: "Mobile",
+                  keyboardType: TextInputType.phone,
+                  validator: (value) {
+                    if (value!.isEmpty) return "Mobile is required";
+                    if (value.length < 10) return "Enter valid mobile";
+                    return null;
+                  },
+                  errorText: serverError["mobile"]!=null?serverError["mobile"][0]:null,
+                ),
+
+                buildPasswordField(
+                  controller: _passwordController,
+                  label: "Password",
+                  isHidden: _isHidden,
+                  onTap: () {
+                    setState(() => _isHidden = !_isHidden);
+                  },
+                  validator: (value) {
+                    if (value!.isEmpty) return "Password required";
+                    if (value.length < 8)
+                      return "Minimum 8 characters required";
+                    return null;
+                  },
+                  errorText: serverError["password"]!=null?serverError["password"][0]:null,
+                ),
+
+                buildPasswordField(
+                  controller: _confirmPasswordController,
+                  label: "Confirm Password",
+                  isHidden: _isConfirmHidden,
+                  onTap: () {
+                    setState(() => _isConfirmHidden = !_isConfirmHidden);
+                  },
+                  validator: (value) {
+                    if (value!.isEmpty) return "Confirm password required";
+                    if (value != _passwordController.text)
+                      return "Passwords do not match";
+                    return null;
+                  },
+                  errorText: serverError["password_confirmation"]!=null?serverError["password_confirmation"][0]:null,
+                ),
+
+                buildTextField(
+                  controller: _companyController,
+                  label: "Company Name",
+                  validator: (value) =>
+                      value!.isEmpty ? "Company name required" : null,
+                  errorText: serverError["company_name"]!=null?serverError["company_name"][0]:null,
+                ),
+
+                buildTextField(
+                  controller: _addressController,
+                  label: "Address",
+                  validator: (value) => (value!.isEmpty)?"Address is required":null,
+                  errorText: serverError["address"]!=null?serverError["address"][0]:null,
+                ),
+
+                buildTextField(
+                  controller: _cityController,
+                  label: "City",
+                  validator: (value)=>value!.isEmpty?"City is required":null,
+                  errorText: serverError["city"]!=null?serverError["city"][0]:null,
+                ),
+
+                buildTextField(
+                  controller: _stateController,
+                  label: "State",
+                  validator: (value)=>value!.isEmpty?"Sate is required":null,
+                  errorText: serverError["state"]!=null?serverError["state"][0]:null,
+                ),
+
+                buildTextField(
+                  controller: _postalCodeController,
+                  label: "Postal Code",
+                  keyboardType: TextInputType.number,
+                  validator: (value)=>value!.isEmpty?"State is required":null,
+                  errorText: serverError["postal_code"]!=null?serverError["postal_code"][0]:null,
+                ),
+
+                const SizedBox(height: 25),
+
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () async {
+
+                      if (_formKey.currentState!.validate()) {
+
+                        Map<String, String> form = {
+                          "name": _nameController.text,
+                          "email": _emailController.text,
+                          "mobile": _mobileController.text,
+                          "password": _passwordController.text,
+                          "password_confirmation":
+                              _confirmPasswordController.text,
+                          "company_name": _companyController.text,
+                          "address": _addressController.text,
+                          "city": _cityController.text,
+                          "state": _stateController.text,
+                          "postal_code": _postalCodeController.text,
+                        };
+
+                        res = await API.signup(body: form);
+
+                        if(res["success"]==false){
+                          serverError = res["errors"];
+                          showMsg(res["message"]);
+                        }
+                        else{
+                          prefs = await SharedPreferences.getInstance();
+                          print(res["data"]["token"]);
+                          // prefs.setString("email", res["data"]["user"]["email"]);
+                          // prefs.setString("email", res["data"]["user"]["email"]);
+                          prefs.setString("token", "Bearer ${res["data"]["token"]}");
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=>UsersScreen()));
+                        }
+
+                        setState(() {});
+                      }
+                    },
+                    child: const Text(
+                      "Sign Up",
+                      style: TextStyle(fontSize: 16),
+                    ),
                   ),
                 ),
-              ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
-              SizedBox(height: 35,),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Already have an account?",
-                    style: TextStyle(fontSize: 17),
-                  ),
-                  SizedBox(width: 5,),
-                  InkWell(
-                    child: Text(
-                      "signin",
-                      style: TextStyle(fontSize: 17,color: Colors.deepPurple.shade500),
-                    ),
-                    onTap: (){},
-                  )
-                ],
-              )
-            ],
+  /// 🔹 Reusable TextFormField with Dynamic Validator
+  Widget buildTextField({
+    required TextEditingController controller,
+    required String label,
+    TextInputType keyboardType = TextInputType.text,
+    String? Function(String?)? validator,
+    String? errorText
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: keyboardType,
+        validator: validator,
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+          errorText: errorText
+        ),
+      ),
+    );
+  }
+
+  /// 🔹 Reusable Password Field with Dynamic Validator
+  Widget buildPasswordField({
+    required TextEditingController controller,
+    required String label,
+    required bool isHidden,
+    required VoidCallback onTap,
+    String? Function(String?)? validator,
+    String? errorText
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15),
+      child: TextFormField(
+        controller: controller,
+        obscureText: isHidden,
+        validator: validator,
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+          errorText: errorText,
+          suffixIcon: IconButton(
+            icon: Icon(
+              isHidden ? Icons.visibility : Icons.visibility_off,
+            ),
+            onPressed: onTap,
           ),
         ),
       ),
