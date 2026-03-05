@@ -1,0 +1,16 @@
+class UserModel{
+
+  late int id;
+  late String name;
+  late String email;
+  late String phone;
+
+  UserModel({required this.id, required this.name, required this.email, required this.phone});
+
+  UserModel.fromJson(Map<String,dynamic> json):
+    id=json["id"],
+    name=json["name"],
+    email=json["email"],
+    phone=json["mobile"];
+
+}

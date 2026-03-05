@@ -1,157 +1,148 @@
+
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
-
-import 'package:userbook/models/userM.dart';
-import 'package:userbook/widgets/user_list.dart';
 import 'package:userbook/api/api.dart';
+import 'package:userbook/screens/dummyscreen.dart';
 
-
-class UsersScreen extends StatefulWidget{
-
+class UsersScreen extends StatefulWidget {
   const UsersScreen({super.key});
 
   @override
-  State<UsersScreen> createState()=> _UsersScreenState();
+  State<UsersScreen> createState() => _UsersScreenState();
 }
 
+class _UsersScreenState extends State<UsersScreen> {
 
-class _UsersScreenState extends State<UsersScreen>{
-
-  List<UsersModel> usersModelList = [];
-  List<UsersModel> helperUserModelList=[];
+  Map<String, dynamic>? userMap;
+  late SharedPreferences prefs;
 
   @override
-  initState(){
+  void initState() {
     super.initState();
-    getUserData();
+    getUsersData();
   }
 
-  //get data from api;
-  Future<void> getUserData() async {
-    List<Map<String,dynamic>> userList = [];
-    final res = await API.getDummyData();
+  void getUsersData() async {
 
-    if(res.statusCode == 200){
-      userList = List<Map<String,dynamic>>.from(jsonDecode(res.body)["users"]);
-      debugPrint("$userList");
-      usersModelList = userList.map((el)=>UsersModel.fromJson(el)).toList();
-      helperUserModelList = usersModelList;
-      setState(() {});
-    }else{
-      debugPrint("data not fetched terminate with status code ${res.statusCode}");
+    final token = await getToken();
+    final res = await API.getUsersData(token: token);
+
+    if (res["success"] == true) {
+      setState(() {
+        userMap = res["data"];
+      });
+    } else {
+      debugPrint(res["message"]);
     }
-    return;
   }
 
-  //filter users base on blood group
-  void filterUser({String? key}){
-    if(key==null || key.toLowerCase()=="all"){
-      helperUserModelList = usersModelList;
-    }
-    else{
-      helperUserModelList=usersModelList.where((user)=>user.bloodG.toLowerCase()==key.toLowerCase()).toList();
-    }
-    setState(() {});
+  dynamic getToken() async {
+    prefs = await SharedPreferences.getInstance();
+    return prefs.getString("token");
   }
 
-  //search user
-  void searchUser({required String key}){
-    if(key.isNotEmpty){
-      helperUserModelList = usersModelList
-                      .where((user)=>user.name.toLowerCase().substring(0,key.length)==key.toLowerCase())
-                      .toList();
-    }
-    else{
-      helperUserModelList = usersModelList;
-    }
-    setState(() {});
-  }
+  @override
+  Widget build(BuildContext context) {
 
-  @override 
-  Widget build(BuildContext build){
-        return Scaffold(
+    return Scaffold(
       appBar: AppBar(
+        title: const Text("User Details"),
         backgroundColor: Colors.blue,
       ),
-      body:SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                children: [
 
-                  //search
-                  Expanded(
-                    flex: 3,
-                    child: TextField(
-                      onChanged: (value) {
-                        searchUser(key: value);
-                      },
-                      decoration: InputDecoration(
-                        hintText: "Search",
-                        prefixIcon: const Icon(Icons.search),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 14),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15), 
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
+      body: userMap == null
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: SizedBox(
+                width: double.infinity,
+                child: Column(
+                  children: [
+                
+                    SizedBox(height: 10,),
+                    /// Profile Image
+                    const CircleAvatar(
+                      radius: 100,
+                      backgroundImage: NetworkImage(
+                        "https://images.ctfassets.net/h6goo9gw1hh6/2sNZtFAWOdP1lmQ33VwRN3/24e953b920a9cd0ff2e1d587742a2472/1-intro-photo-final.jpg?w=1200&h=992&fl=progressive&q=70&fm=jpg"
                       ),
                     ),
-                  ),
-
-                  const SizedBox(width: 10),
-
-                  //filter
-                  Expanded(
-                    flex: 2,
-                    child: DropdownButtonFormField<String>(
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.filter_list),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
+                
+                    const SizedBox(height: 20),
+                
+                    /// Name
+                    Text(
+                      userMap!["name"],
+                      style: const TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
                       ),
-                      items: const [
-                        DropdownMenuItem(value: "All", child: Text("All")),
-                        DropdownMenuItem(value: "A+", child: Text("A+")),
-                        DropdownMenuItem(value: "A-", child: Text("A-")),
-                        DropdownMenuItem(value: "B+", child: Text("B+")),
-                        DropdownMenuItem(value: "B-", child: Text("B-")),
-                        DropdownMenuItem(value: "O+", child: Text("O+")),
-                        DropdownMenuItem(value: "O-", child: Text("O-")),
-                        DropdownMenuItem(value: "AB+", child: Text("AB+")),
-                        DropdownMenuItem(value: "AB-", child: Text("AB-")),
-                      ],
-                      onChanged: (value) {
-                        filterUser(key: value);
-                      },
                     ),
-                  ),
-                ],
+                
+                    const SizedBox(height: 20),
+                
+                    /// Info Section
+                    SizedBox(
+                      width: 300,
+                      child: Column(
+                        children: [
+                          buildInfoTile("ID", userMap!["id"].toString()),
+                          buildInfoTile("Email", userMap!["email"]),
+                          buildInfoTile("Mobile", userMap!["mobile"].toString()),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
-
-            //userList
-            Expanded(child: UsersList(userList: helperUserModelList)),
-          ],
-        ),
-      )
+            
+                  /// Button fixed at bottom of screen
+            bottomNavigationBar: Padding(
+              padding: const EdgeInsets.all(30),
+              child: SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_)=>DummyScreen()));
+                  },
+                  child: const Text(
+                    "Edit Profile",
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ),
+              ),
+            ),
     );
   }
 
+  Widget buildInfoTile(String title, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+
+          Text(
+            "$title: ",
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+          ),
+
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 17,
+              ),
+            ),
+          ),
+
+        ],
+      ),
+    );
+  }
 }

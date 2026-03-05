@@ -53,6 +53,7 @@ class API{
     );
 
     debugPrint("${jsonDecode(res.body)}");
+    return jsonDecode(res.body);
   }
 
   static Future<dynamic> getDummyData() async{

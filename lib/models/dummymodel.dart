@@ -1,4 +1,4 @@
-class UsersModel{
+class DummyModel{
   late int id;
   late String name;
   late String bloodG;
@@ -13,9 +13,9 @@ class UsersModel{
   late Map<String,dynamic> address;
 
 
-  UsersModel({required this.id, required this.name, required this.bloodG, required this.image});
+  DummyModel({required this.id, required this.name, required this.bloodG, required this.image});
 
-  UsersModel.fromJson(Map<String,dynamic> json):
+  DummyModel.fromJson(Map<String,dynamic> json):
     id=json["id"],
     name=json["firstName"],
     bloodG=json["bloodGroup"]??"Not Mnetion",

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:userbook/models/userM.dart';
+import 'package:userbook/models/dummymodel.dart';
 
-class DetailScreen extends StatelessWidget {
-  final UsersModel userDetail;
+class DummyDetailScreen extends StatelessWidget {
+  final DummyModel userDetail;
 
-  const DetailScreen({super.key, required this.userDetail});
+  const DummyDetailScreen({super.key, required this.userDetail});
 
   @override
   Widget build(BuildContext context) {
