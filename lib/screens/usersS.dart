@@ -98,7 +98,7 @@ class _UsersScreenState extends State<UsersScreen> {
             ),
             
                   /// Button fixed at bottom of screen
-            bottomNavigationBar: Padding(
+            bottomNavigationBar: (userMap==null)?null:Padding(
               padding: const EdgeInsets.all(30),
               child: SizedBox(
                 width: double.infinity,
@@ -108,7 +108,7 @@ class _UsersScreenState extends State<UsersScreen> {
                     Navigator.push(context, MaterialPageRoute(builder: (_)=>DummyScreen()));
                   },
                   child: const Text(
-                    "Edit Profile",
+                    "Dummy List",
                     style: TextStyle(fontSize: 18),
                   ),
                 ),

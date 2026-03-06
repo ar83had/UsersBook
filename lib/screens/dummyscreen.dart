@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 import 'package:userbook/models/dummymodel.dart';
+import 'package:userbook/widgets/circularprogression.dart';
 import 'package:userbook/widgets/user_list.dart';
 import 'package:userbook/api/api.dart';
 
@@ -19,8 +20,8 @@ class DummyScreen extends StatefulWidget{
 
 class _DummyScreenState extends State<DummyScreen>{
 
-  List<DummyModel> DummyModelList = [];
-  List<DummyModel> helperUserModelList=[];
+  List<DummyModel>? DummyModelList;
+  List<DummyModel>? helperUserModelList;
 
   @override
   initState(){
@@ -37,6 +38,7 @@ class _DummyScreenState extends State<DummyScreen>{
       userList = List<Map<String,dynamic>>.from(jsonDecode(res.body)["users"]);
       debugPrint("$userList");
       DummyModelList = userList.map((el)=>DummyModel.fromJson(el)).toList();
+      await Future.delayed(Duration(seconds: 2));
       helperUserModelList = DummyModelList;
       setState(() {});
     }else{
@@ -51,7 +53,7 @@ class _DummyScreenState extends State<DummyScreen>{
       helperUserModelList = DummyModelList;
     }
     else{
-      helperUserModelList=DummyModelList.where((user)=>user.bloodG.toLowerCase()==key.toLowerCase()).toList();
+      helperUserModelList=DummyModelList!.where((user)=>user.bloodG.toLowerCase()==key.toLowerCase()).toList();
     }
     setState(() {});
   }
@@ -59,7 +61,7 @@ class _DummyScreenState extends State<DummyScreen>{
   //search user
   void searchUser({required String key}){
     if(key.isNotEmpty){
-      helperUserModelList = DummyModelList
+      helperUserModelList = DummyModelList!
                       .where((user)=>user.name.toLowerCase().substring(0,key.length)==key.toLowerCase())
                       .toList();
     }
@@ -71,11 +73,13 @@ class _DummyScreenState extends State<DummyScreen>{
 
   @override 
   Widget build(BuildContext build){
-        return Scaffold(
+      return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
       ),
-      body:SafeArea(
+      body: (helperUserModelList==null)?
+      Circularprogression():
+      SafeArea(
         child: Column(
           children: [
             Padding(
@@ -147,7 +151,7 @@ class _DummyScreenState extends State<DummyScreen>{
             ),
 
             //userList
-            Expanded(child: UsersList(userList: helperUserModelList)),
+            Expanded(child: UsersList(userList: helperUserModelList!)),
           ],
         ),
       )

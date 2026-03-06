@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:userbook/screens/dummyscreen.dart';
 import 'package:userbook/screens/signin.dart';
 import 'package:userbook/screens/usersS.dart';
+import 'package:userbook/widgets/circularprogression.dart';
 import 'package:userbook/widgets/password_text_field.dart';
 import 'package:userbook/widgets/text_form_field.dart';
 
@@ -31,6 +32,7 @@ class _SignUpState extends State<SignUp> {
 
   bool _isHidden = true;
   bool _isConfirmHidden = true;
+  bool isBtnTap = false;
 
   Map<String,dynamic> serverError={};
   late dynamic res;
@@ -183,6 +185,7 @@ class _SignUpState extends State<SignUp> {
 
                       if (_formKey.currentState!.validate()) {
 
+                        isBtnTap = true;
                         Map<String, String> form = {
                           "name": _nameController.text,
                           "email": _emailController.text,
@@ -211,11 +214,14 @@ class _SignUpState extends State<SignUp> {
                           prefs.setString("token", "Bearer ${res["data"]["token"]}");
                           Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=>UsersScreen()));
                         }
-
+                        
+                        isBtnTap = false;
                         setState(() {});
                       }
                     },
-                    child: const Text(
+                    child: (isBtnTap)?
+                    Circularprogression():
+                    const Text(
                       "Sign Up",
                       style: TextStyle(fontSize: 16),
                     ),

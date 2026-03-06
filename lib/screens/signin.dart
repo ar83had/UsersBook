@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:userbook/screens/dummyscreen.dart';
 import 'package:userbook/screens/signup.dart';
 import 'package:userbook/screens/usersS.dart';
+import 'package:userbook/widgets/circularprogression.dart';
 import 'package:userbook/widgets/password_text_field.dart';
 import 'package:userbook/widgets/text_form_field.dart';
 import 'package:userbook/api/api.dart';
@@ -18,11 +19,19 @@ class _SigninScreenState extends State<SigninScreen> {
 
   bool _isHidden = true;
   dynamic res;
+  bool isTap = false;
 
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late SharedPreferences pref;
+
+
+  void showMsg(String msg){
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg))
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,32 +87,42 @@ class _SigninScreenState extends State<SigninScreen> {
 
                 SizedBox(height: 25,),
 
-                ElevatedButton(
-                  onPressed: () async{
-                    
-                    if(_formKey.currentState!.validate()){
-                      Map<String,String> form = {
-                        "email" : _emailController.text,
-                        "password" : _passwordController.text,
-                      };
-
-                      res = await API.signin(body: form);
-
-                      if(res["success"]==false){
-                        debugPrint("$res");
-                      }else{
-                        debugPrint("$res");
-                        pref = await SharedPreferences.getInstance();
-                        // pref.setString("email", res["data"]["user"]["email"]);
-                        // pref.setString("password",res["data"]["user"]["password"]);
-                        pref.setString("token", "Bearer ${res["data"]["token"]}");
-                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=>UsersScreen()));
+                SizedBox(
+                  width: 50,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () async{
+                      
+                      if(_formKey.currentState!.validate()){
+                  
+                        isTap = true;
+                  
+                        Map<String,String> form = {
+                          "email" : _emailController.text,
+                          "password" : _passwordController.text,
+                        };
+                  
+                        res = await API.signin(body: form);
+                  
+                        if(res["success"]==false){
+                          debugPrint("$res");
+                          showMsg(res["message"]);
+                        }else{
+                          debugPrint("$res");
+                          pref = await SharedPreferences.getInstance();
+                          // pref.setString("email", res["data"]["user"]["email"]);
+                          // pref.setString("password",res["data"]["user"]["password"]);
+                          pref.setString("token", "Bearer ${res["data"]["token"]}");
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=>UsersScreen()));
+                        }
                       }
-                    }
-                  }, 
-                  child: const Text(
-                      "Sign In",
-                      style: TextStyle(fontSize: 16),
+                    }, 
+                    child: (isTap)?
+                    SizedBox(child: Circularprogression(),width: 30,height: 30,) :
+                    Text(
+                        "Sign In",
+                        style: TextStyle(fontSize: 16),
+                    ),
                   ),
                 ),
 
