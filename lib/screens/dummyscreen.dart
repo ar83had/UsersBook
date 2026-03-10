@@ -22,6 +22,8 @@ class _DummyScreenState extends State<DummyScreen>{
 
   List<DummyModel>? DummyModelList;
   List<DummyModel>? helperUserModelList;
+  bool isFilter = false;
+  dynamic dropDownSelect;
 
   @override
   initState(){
@@ -49,6 +51,7 @@ class _DummyScreenState extends State<DummyScreen>{
 
   //filter users base on blood group
   void filterUser({String? key}){
+    isFilter = true;
     if(key==null || key.toLowerCase()=="all"){
       helperUserModelList = DummyModelList;
     }
@@ -61,12 +64,14 @@ class _DummyScreenState extends State<DummyScreen>{
   //search user
   void searchUser({required String key}){
     if(key.isNotEmpty){
-      helperUserModelList = DummyModelList!
+      helperUserModelList = helperUserModelList!
                       .where((user)=>user.name.toLowerCase().substring(0,key.length)==key.toLowerCase())
                       .toList();
     }
-    else{
+    else if(!isFilter){
       helperUserModelList = DummyModelList;
+    }else if(isFilter){
+      filterUser(key: dropDownSelect);
     }
     setState(() {});
   }
@@ -142,6 +147,7 @@ class _DummyScreenState extends State<DummyScreen>{
                         DropdownMenuItem(value: "AB-", child: Text("AB-")),
                       ],
                       onChanged: (value) {
+                        dropDownSelect=value;
                         filterUser(key: value);
                       },
                     ),
@@ -159,3 +165,8 @@ class _DummyScreenState extends State<DummyScreen>{
   }
 
 }
+
+/*
+if filter not selected so show matched item and if serach value is empty show all
+if filter selected so serach from filter item and if serach empty then call filter with selected filter field(here we maintain filter filed)
+ */
