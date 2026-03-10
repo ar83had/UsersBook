@@ -36,8 +36,17 @@ class _SigninScreenState extends State<SigninScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:AppBar(
+      appBar: AppBar(
         backgroundColor: Colors.blue,
+        actions: [
+          ElevatedButton(
+            style: ButtonStyle(    backgroundColor: WidgetStateProperty.all(Colors.blue.shade500),foregroundColor: WidgetStateProperty.all(Colors.white)),
+          onPressed: (){
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>DummyScreen()));
+          }, 
+          child: Text("Dummy Screen")
+        )
+        ],
       ),
       body:SingleChildScrollView(
         child: Padding(
@@ -115,6 +124,9 @@ class _SigninScreenState extends State<SigninScreen> {
                           pref.setString("token", "Bearer ${res["data"]["token"]}");
                           Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=>UsersScreen()));
                         }
+
+                        isTap = false;
+                        setState(() {});
                       }
                     }, 
                     child: (isTap)?

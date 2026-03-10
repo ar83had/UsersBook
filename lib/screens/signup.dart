@@ -56,7 +56,18 @@ class _SignUpState extends State<SignUp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.blue),
+      appBar: AppBar(
+        backgroundColor: Colors.blue,
+        actions: [
+          ElevatedButton(
+            style: ButtonStyle(    backgroundColor: WidgetStateProperty.all(Colors.blue.shade500),foregroundColor: WidgetStateProperty.all(Colors.white)),
+          onPressed: (){
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>DummyScreen()));
+          }, 
+          child: Text("Dummy Screen")
+        )
+        ],
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -191,8 +202,7 @@ class _SignUpState extends State<SignUp> {
                           "email": _emailController.text,
                           "mobile": _mobileController.text,
                           "password": _passwordController.text,
-                          "password_confirmation":
-                              _confirmPasswordController.text,
+                          "password_confirmation":                              _confirmPasswordController.text,
                           "company_name": _companyController.text,
                           "address": _addressController.text,
                           "city": _cityController.text,
@@ -256,57 +266,4 @@ class _SignUpState extends State<SignUp> {
       ),
     );
   }
-
-  /// 🔹 Reusable TextFormField with Dynamic Validator
-  // Widget BuildTextField({
-  //   required TextEditingController controller,
-  //   required String label,
-  //   TextInputType keyboardType = TextInputType.text,
-  //   String? Function(String?)? validator,
-  //   String? errorText
-  // }) {
-  //   return Padding(
-  //     padding: const EdgeInsets.only(bottom: 15),
-  //     child: TextFormField(
-  //       controller: controller,
-  //       keyboardType: keyboardType,
-  //       validator: validator,
-  //       decoration: InputDecoration(
-  //         labelText: label,
-  //         border: const OutlineInputBorder(),
-  //         errorText: errorText
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  /// 🔹 Reusable Password Field with Dynamic Validator
-//   Widget buildPasswordField({
-//     required TextEditingController controller,
-//     required String label,
-//     required bool isHidden,
-//     required VoidCallback onTap,
-//     String? Function(String?)? validator,
-//     String? errorText
-//   }) {
-//     return Padding(
-//       padding: const EdgeInsets.only(bottom: 15),
-//       child: TextFormField(
-//         controller: controller,
-//         obscureText: isHidden,
-//         validator: validator,
-//         decoration: InputDecoration(
-//           labelText: label,
-//           border: const OutlineInputBorder(),
-//           errorText: errorText,
-//           suffixIcon: IconButton(
-//             icon: Icon(
-//               isHidden ? Icons.visibility : Icons.visibility_off,
-//             ),
-//             onPressed: onTap,
-//           ),
-//         ),
-//       ),
-//     );
-//   }
 }
